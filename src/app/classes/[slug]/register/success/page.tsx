@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getStripe } from "@/lib/stripe";
 import { formatPrice } from "@/lib/format";
 
 export const metadata: Metadata = {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 
 type PageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ rid?: string }>;
+  searchParams: Promise<{ rid?: string; session_id?: string }>;
 };
 
 type RegistrationSummary = {
@@ -23,26 +24,45 @@ type RegistrationSummary = {
 
 async function getRegistration(
   rid: string | undefined,
+  sessionId: string | undefined,
 ): Promise<RegistrationSummary | null> {
-  if (!rid) return null;
   const supabase = createAdminClient();
-  const { data } = await supabase
-    .from("registrations")
-    .select(
-      "parent_first_name, student_first_name, student_last_name, amount_cents, status, classes ( title )",
-    )
-    .eq("id", rid)
-    .maybeSingle();
+  const select =
+    "parent_first_name, student_first_name, student_last_name, amount_cents, status, classes ( title )";
+
+  const query = supabase.from("registrations").select(select);
+  const { data } = sessionId
+    ? await query.eq("stripe_checkout_session_id", sessionId).maybeSingle()
+    : rid
+      ? await query.eq("id", rid).maybeSingle()
+      : { data: null };
+
   return (data as RegistrationSummary | null) ?? null;
 }
 
+// Ask Stripe directly whether the session was paid. This is accurate even
+// before the (future) webhook flips the DB status.
+async function getStripePaid(sessionId: string | undefined): Promise<boolean> {
+  if (!sessionId) return false;
+  try {
+    const session = await getStripe().checkout.sessions.retrieve(sessionId);
+    return session.payment_status === "paid";
+  } catch {
+    return false;
+  }
+}
+
 export default async function RegistrationSuccessPage({
-  params,
   searchParams,
 }: PageProps) {
-  const { slug } = await params;
-  const { rid } = await searchParams;
-  const reg = await getRegistration(rid);
+  const { rid, session_id } = await searchParams;
+
+  const [reg, stripePaid] = await Promise.all([
+    getRegistration(rid, session_id),
+    getStripePaid(session_id),
+  ]);
+
+  const isPaid = stripePaid || reg?.status === "paid";
 
   const classTitle = Array.isArray(reg?.classes)
     ? (reg?.classes[0]?.title ?? null)
@@ -57,7 +77,7 @@ export default async function RegistrationSuccessPage({
       </div>
 
       <h1 className="mt-6 text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-        Registration received
+        {isPaid ? "Payment received" : "Registration received"}
       </h1>
 
       <p className="mt-3 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
@@ -73,18 +93,24 @@ export default async function RegistrationSuccessPage({
           </Row>
           {classTitle && <Row label="Class">{classTitle}</Row>}
           <Row label="Tuition">{formatPrice(reg.amount_cents)}</Row>
-          <Row label="Status">
-            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-              Pending payment
-            </span>
+          <Row label="Payment">
+            {isPaid ? (
+              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                Paid
+              </span>
+            ) : (
+              <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                Pending payment
+              </span>
+            )}
           </Row>
         </dl>
       )}
 
       <p className="mt-8 rounded-lg bg-indigo-50 px-4 py-3 text-sm text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200">
-        Your spot is held as <strong>pending payment</strong>. Online payment
-        via Stripe is coming next — once it&apos;s live, you&apos;ll complete
-        checkout here to confirm enrollment.
+        {isPaid
+          ? "Your payment was successful. Enrollment is being finalized — automated confirmation is coming in the next step."
+          : "Your spot is held as pending payment. If you didn't complete checkout, you can register again from the class page."}
       </p>
 
       <div className="mt-10">
