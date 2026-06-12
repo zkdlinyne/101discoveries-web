@@ -88,7 +88,7 @@ function ClassCard({ c }: { c: CatalogClass }) {
             href={`/classes/${c.slug}`}
             className="inline-flex items-center rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            {isWaitlist ? "Join waitlist" : "Register"}
+            {isWaitlist ? "Join waitlist" : "Details & Register"}
           </Link>
         </div>
       </div>
