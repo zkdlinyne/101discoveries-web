@@ -166,6 +166,41 @@ export async function getAdminClassSummaries(): Promise<ClassSummary[]> {
   });
 }
 
+export type EditableClass = {
+  id: string;
+  title: string;
+  category: string;
+  description: string | null;
+  term_id: string | null;
+  location_id: string | null;
+  day_of_week: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  grade_min: number;
+  grade_max: number;
+  price_cents: number;
+  capacity: number;
+  is_published: boolean;
+};
+
+// A single class with all editable fields (for the admin edit form).
+export async function getClassForEdit(
+  classId: string,
+): Promise<EditableClass | null> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("classes")
+    .select(
+      "id, title, category, description, term_id, location_id, day_of_week, start_time, end_time, grade_min, grade_max, price_cents, capacity, is_published",
+    )
+    .eq("id", classId)
+    .maybeSingle();
+
+  if (error) throw new Error(`Failed to load class: ${error.message}`);
+  if (!data) return null;
+  return data as EditableClass;
+}
+
 // Full roster for a single class. Returns null if the class doesn't exist.
 export async function getClassRoster(
   classId: string,

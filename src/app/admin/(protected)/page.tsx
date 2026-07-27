@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getAdminClassSummaries, type ClassSummary } from "@/lib/admin";
+import { DeleteClassButton } from "./DeleteClassButton";
 
 export const metadata: Metadata = {
   title: "Dashboard — 101Discoveries Admin",
@@ -57,8 +58,14 @@ export default async function AdminOverviewPage() {
 
 function ClassRow({ c }: { c: ClassSummary }) {
   const full = c.counts.enrolled >= c.capacity;
+  const registrationCount =
+    c.counts.paid +
+    c.counts.pending +
+    c.counts.waitlisted +
+    c.counts.cancelled +
+    c.counts.refunded;
   return (
-    <tr className="bg-white hover:bg-zinc-50 dark:bg-zinc-950 dark:hover:bg-zinc-900">
+    <tr className="group bg-white hover:bg-zinc-50 dark:bg-zinc-950 dark:hover:bg-zinc-900">
       <td className="px-4 py-3">
         <Link
           href={`/admin/classes/${c.id}`}
@@ -91,14 +98,43 @@ function ClassRow({ c }: { c: ClassSummary }) {
       <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">
         {c.counts.waitlisted}
       </td>
-      <td className="px-4 py-3 text-right">
-        <Link
-          href={`/admin/classes/${c.id}`}
-          className="text-xs font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-        >
-          View roster →
-        </Link>
+      <td className="px-4 py-3">
+        <div className="flex items-center justify-end gap-3">
+          <Link
+            href={`/admin/classes/${c.id}`}
+            className="text-xs font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+          >
+            View roster →
+          </Link>
+          <Link
+            href={`/admin/classes/${c.id}/edit`}
+            aria-label={`Edit ${c.title}`}
+            title={`Edit ${c.title}`}
+            className="rounded-md p-1.5 text-zinc-400 opacity-0 transition-opacity hover:bg-indigo-50 hover:text-indigo-600 focus-visible:opacity-100 group-hover:opacity-100 dark:hover:bg-indigo-950 dark:hover:text-indigo-400"
+          >
+            <PencilIcon />
+          </Link>
+          <DeleteClassButton
+            classId={c.id}
+            title={c.title}
+            registrationCount={registrationCount}
+          />
+        </div>
       </td>
     </tr>
+  );
+}
+
+function PencilIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className="h-4 w-4"
+      aria-hidden="true"
+    >
+      <path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-.793.793-2.828-2.828.793-.793ZM11.379 5.793 3 14.172V17h2.828l8.38-8.379-2.83-2.828Z" />
+    </svg>
   );
 }

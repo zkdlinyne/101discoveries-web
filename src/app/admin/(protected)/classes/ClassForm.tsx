@@ -5,28 +5,55 @@ import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import type { AdminLocation, AdminTerm } from "@/lib/admin";
 import { CATEGORY_OPTIONS, DAY_OPTIONS, GRADE_OPTIONS } from "@/lib/validation";
-import { createClassAction, type NewClassState } from "./actions";
+import type { ClassFormState, ClassFormValues } from "./form-state";
 
-const initialState: NewClassState = {};
+const initialState: ClassFormState = {};
 
 const inputClass =
   "mt-1.5 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
-const labelClass =
-  "block text-sm font-medium text-zinc-700 dark:text-zinc-300";
+const labelClass = "block text-sm font-medium text-zinc-700 dark:text-zinc-300";
 
-export function NewClassForm({
+type ClassFormAction = (
+  state: ClassFormState,
+  formData: FormData,
+) => Promise<ClassFormState>;
+
+export function ClassForm({
   terms,
   locations,
+  action,
+  initialValues,
+  submitLabel,
+  pendingLabel,
+  classId,
+  cancelHref = "/admin",
 }: {
   terms: AdminTerm[];
   locations: AdminLocation[];
+  action: ClassFormAction;
+  initialValues: ClassFormValues;
+  submitLabel: string;
+  pendingLabel: string;
+  classId?: string;
+  cancelHref?: string;
 }) {
-  const [state, formAction] = useActionState(createClassAction, initialState);
+  const [state, formAction] = useActionState(action, initialState);
   const err = state.fieldErrors ?? {};
   const val = state.values ?? {};
 
+  // Prefer the resubmitted value (on validation error) over the initial value.
+  const field = (key: keyof ClassFormValues) =>
+    val[key] ?? String(initialValues[key] ?? "");
+
+  const publishedDefault =
+    val.is_published !== undefined
+      ? val.is_published === "on"
+      : initialValues.is_published;
+
   return (
     <form action={formAction} className="mt-8 space-y-6">
+      {classId && <input type="hidden" name="classId" value={classId} />}
+
       {state.error && (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-950 dark:text-red-300">
           {state.error}
@@ -42,7 +69,7 @@ export function NewClassForm({
           name="title"
           type="text"
           required
-          defaultValue={val.title}
+          defaultValue={field("title")}
           placeholder="Beginner Chess"
           className={inputClass}
         />
@@ -57,7 +84,7 @@ export function NewClassForm({
           id="description"
           name="description"
           rows={3}
-          defaultValue={val.description}
+          defaultValue={field("description")}
           placeholder="Introductory chess class focused on rules, tactics, and sportsmanship."
           className={inputClass}
         />
@@ -72,7 +99,7 @@ export function NewClassForm({
           <select
             id="category"
             name="category"
-            defaultValue={val.category ?? ""}
+            defaultValue={field("category")}
             className={inputClass}
           >
             <option value="" disabled>
@@ -94,7 +121,7 @@ export function NewClassForm({
           <select
             id="term_id"
             name="term_id"
-            defaultValue={val.term_id ?? ""}
+            defaultValue={field("term_id")}
             className={inputClass}
           >
             <option value="">No semester</option>
@@ -114,7 +141,7 @@ export function NewClassForm({
           <select
             id="grade_min"
             name="grade_min"
-            defaultValue={val.grade_min ?? "0"}
+            defaultValue={field("grade_min")}
             className={inputClass}
           >
             {GRADE_OPTIONS.map((g) => (
@@ -133,7 +160,7 @@ export function NewClassForm({
           <select
             id="grade_max"
             name="grade_max"
-            defaultValue={val.grade_max ?? "8"}
+            defaultValue={field("grade_max")}
             className={inputClass}
           >
             {GRADE_OPTIONS.map((g) => (
@@ -156,7 +183,7 @@ export function NewClassForm({
             min="0"
             step="1"
             required
-            defaultValue={val.price_dollars}
+            defaultValue={field("price_dollars")}
             placeholder="450"
             className={inputClass}
           />
@@ -174,7 +201,7 @@ export function NewClassForm({
             min="1"
             step="1"
             required
-            defaultValue={val.capacity}
+            defaultValue={field("capacity")}
             placeholder="16"
             className={inputClass}
           />
@@ -188,7 +215,7 @@ export function NewClassForm({
           <select
             id="location_id"
             name="location_id"
-            defaultValue={val.location_id ?? ""}
+            defaultValue={field("location_id")}
             className={inputClass}
           >
             <option value="">No location</option>
@@ -209,7 +236,7 @@ export function NewClassForm({
           <select
             id="day_of_week"
             name="day_of_week"
-            defaultValue={val.day_of_week ?? ""}
+            defaultValue={field("day_of_week")}
             className={inputClass}
           >
             <option value="">No set day</option>
@@ -230,7 +257,7 @@ export function NewClassForm({
             id="start_time"
             name="start_time"
             type="time"
-            defaultValue={val.start_time}
+            defaultValue={field("start_time")}
             className={inputClass}
           />
           {err.start_time && <FieldError>{err.start_time}</FieldError>}
@@ -244,7 +271,7 @@ export function NewClassForm({
             id="end_time"
             name="end_time"
             type="time"
-            defaultValue={val.end_time}
+            defaultValue={field("end_time")}
             className={inputClass}
           />
           {err.end_time && <FieldError>{err.end_time}</FieldError>}
@@ -255,15 +282,16 @@ export function NewClassForm({
         <input
           type="checkbox"
           name="is_published"
+          defaultChecked={publishedDefault}
           className="h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
         />
-        Publish immediately (visible on the public catalog)
+        Publish on the public catalog
       </label>
 
       <div className="flex items-center gap-3 pt-2">
-        <SubmitButton />
+        <SubmitButton submitLabel={submitLabel} pendingLabel={pendingLabel} />
         <Link
-          href="/admin"
+          href={cancelHref}
           className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
         >
           Cancel
@@ -281,7 +309,13 @@ function FieldError({ children }: { children: React.ReactNode }) {
   );
 }
 
-function SubmitButton() {
+function SubmitButton({
+  submitLabel,
+  pendingLabel,
+}: {
+  submitLabel: string;
+  pendingLabel: string;
+}) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -289,7 +323,7 @@ function SubmitButton() {
       disabled={pending}
       className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {pending ? "Creating…" : "Create class"}
+      {pending ? pendingLabel : submitLabel}
     </button>
   );
 }
