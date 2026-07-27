@@ -4,13 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAdminUser } from "@/lib/admin-auth";
-import { classInputSchema } from "@/lib/validation";
-
-export type NewClassState = {
-  error?: string;
-  fieldErrors?: Record<string, string>;
-  values?: Record<string, string>;
-};
+import type { ClassFormState } from "../form-state";
+import { parseClassForm } from "../parse";
 
 function slugify(input: string): string {
   return input
@@ -29,7 +24,6 @@ async function uniqueSlug(
   let candidate = root;
   let n = 1;
 
-  // Loop until we find a slug not already taken.
   for (;;) {
     const { data, error } = await supabase
       .from("classes")
@@ -46,56 +40,16 @@ async function uniqueSlug(
 }
 
 export async function createClassAction(
-  _prevState: NewClassState,
+  _prevState: ClassFormState,
   formData: FormData,
-): Promise<NewClassState> {
+): Promise<ClassFormState> {
   const user = await getAdminUser();
   if (!user) redirect("/admin/login");
 
-  const raw = {
-    title: formData.get("title"),
-    category: formData.get("category"),
-    description: formData.get("description"),
-    term_id: formData.get("term_id"),
-    location_id: formData.get("location_id"),
-    day_of_week: formData.get("day_of_week"),
-    start_time: formData.get("start_time"),
-    end_time: formData.get("end_time"),
-    grade_min: formData.get("grade_min"),
-    grade_max: formData.get("grade_max"),
-    price_dollars: formData.get("price_dollars"),
-    capacity: formData.get("capacity"),
-    is_published: formData.get("is_published") === "on",
-  };
+  const result = parseClassForm(formData);
+  if (!result.ok) return result.state;
 
-  const parsed = classInputSchema.safeParse(raw);
-  if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) {
-      const key = String(issue.path[0] ?? "");
-      if (key && !fieldErrors[key]) fieldErrors[key] = issue.message;
-    }
-    return {
-      error: "Please fix the highlighted fields.",
-      fieldErrors,
-      values: {
-        title: String(raw.title ?? ""),
-        category: String(raw.category ?? ""),
-        description: String(raw.description ?? ""),
-        term_id: String(raw.term_id ?? ""),
-        location_id: String(raw.location_id ?? ""),
-        day_of_week: String(raw.day_of_week ?? ""),
-        start_time: String(raw.start_time ?? ""),
-        end_time: String(raw.end_time ?? ""),
-        grade_min: String(raw.grade_min ?? ""),
-        grade_max: String(raw.grade_max ?? ""),
-        price_dollars: String(raw.price_dollars ?? ""),
-        capacity: String(raw.capacity ?? ""),
-      },
-    };
-  }
-
-  const input = parsed.data;
+  const input = result.data;
   const supabase = createAdminClient();
   const slug = await uniqueSlug(supabase, slugify(input.title));
 

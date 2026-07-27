@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getAdminLocations, getAdminTerms } from "@/lib/admin";
-import { NewClassForm } from "./NewClassForm";
+import { ClassForm } from "../ClassForm";
+import { EMPTY_CLASS_VALUES } from "../form-state";
+import { createClassAction } from "./actions";
 
 export const metadata: Metadata = {
   title: "New class — 101Discoveries Admin",
@@ -30,7 +32,14 @@ export default async function NewClassPage() {
         goes live.
       </p>
 
-      <NewClassForm terms={terms} locations={locations} />
+      <ClassForm
+        terms={terms}
+        locations={locations}
+        action={createClassAction}
+        initialValues={EMPTY_CLASS_VALUES}
+        submitLabel="Create class"
+        pendingLabel="Creating…"
+      />
     </main>
   );
 }
