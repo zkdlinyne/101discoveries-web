@@ -45,7 +45,6 @@ export async function POST(req: NextRequest) {
         if (justPaid) {
           await sendConfirmationEmail({
             to: justPaid.parent_email,
-            parentFirstName: justPaid.parent_first_name,
             studentFirstName: justPaid.student_first_name,
             studentLastName: justPaid.student_last_name,
             className: justPaid.class_title,
@@ -70,7 +69,6 @@ export async function POST(req: NextRequest) {
 
 type PaidRegistration = {
   parent_email: string;
-  parent_first_name: string;
   student_first_name: string;
   student_last_name: string;
   amount_cents: number;
@@ -107,7 +105,7 @@ async function markRegistrationPaid(
     // return no row — our idempotency signal for the confirmation email.
     .neq("status", "paid")
     .select(
-      "parent_email, parent_first_name, student_first_name, student_last_name, amount_cents, classes ( title )",
+      "parent_email, student_first_name, student_last_name, amount_cents, classes ( title )",
     )
     .maybeSingle();
 
@@ -123,7 +121,6 @@ async function markRegistrationPaid(
 
   return {
     parent_email: data.parent_email,
-    parent_first_name: data.parent_first_name,
     student_first_name: data.student_first_name,
     student_last_name: data.student_last_name,
     amount_cents: data.amount_cents,

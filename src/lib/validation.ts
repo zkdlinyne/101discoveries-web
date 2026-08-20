@@ -12,18 +12,9 @@ export const GRADE_OPTIONS = [
   { value: 8, label: "Grade 8" },
 ] as const;
 
-const optionalText = z
-  .string()
-  .trim()
-  .max(200)
-  .optional()
-  .transform((v) => v ?? "");
-
 export const registrationSchema = z.object({
   slug: z.string().min(1),
 
-  parent_first_name: z.string().trim().min(1, "Required").max(100),
-  parent_last_name: z.string().trim().min(1, "Required").max(100),
   parent_email: z.email("Enter a valid email"),
   parent_phone: z.string().trim().min(7, "Enter a valid phone number").max(30),
 
@@ -34,9 +25,6 @@ export const registrationSchema = z.object({
     .int()
     .min(0, "Select a grade")
     .max(8, "Select a grade"),
-
-  emergency_contact_name: optionalText,
-  emergency_contact_phone: optionalText,
 });
 
 export type RegistrationInput = z.infer<typeof registrationSchema>;
@@ -119,30 +107,6 @@ export const classInputSchema = z
   );
 
 export type ClassInput = z.infer<typeof classInputSchema>;
-
-export const locationInputSchema = z.object({
-  name: z.string().trim().min(1, "Required").max(150),
-  address: z
-    .string()
-    .trim()
-    .max(300)
-    .optional()
-    .transform((v) => (v ? v : null)),
-  city: z
-    .string()
-    .trim()
-    .max(120)
-    .optional()
-    .transform((v) => (v ? v : "Jersey City")),
-  state: z
-    .string()
-    .trim()
-    .max(2)
-    .optional()
-    .transform((v) => (v ? v.toUpperCase() : "NJ")),
-});
-
-export type LocationInput = z.infer<typeof locationInputSchema>;
 
 export const termInputSchema = z
   .object({

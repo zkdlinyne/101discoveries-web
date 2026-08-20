@@ -52,15 +52,11 @@ export async function registerAction(
     .from("registrations")
     .insert({
       class_id: klass.id,
-      parent_first_name: input.parent_first_name,
-      parent_last_name: input.parent_last_name,
       parent_email: input.parent_email,
       parent_phone: input.parent_phone,
       student_first_name: input.student_first_name,
       student_last_name: input.student_last_name,
       student_grade: input.student_grade,
-      emergency_contact_name: input.emergency_contact_name || null,
-      emergency_contact_phone: input.emergency_contact_phone || null,
       amount_cents: klass.price_cents,
       status: "pending_payment",
     })

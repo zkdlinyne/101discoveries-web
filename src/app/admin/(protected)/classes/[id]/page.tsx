@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getClassRoster, type RosterRow } from "@/lib/admin";
 import { formatGradeRange, formatPrice } from "@/lib/format";
+import { DeleteRegistrationButton } from "./DeleteRegistrationButton";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -67,15 +68,15 @@ export default async function ClassRosterPage({ params }: PageProps) {
               <tr>
                 <th className="px-4 py-3 font-medium">Student</th>
                 <th className="px-4 py-3 font-medium">Grade</th>
-                <th className="px-4 py-3 font-medium">Parent</th>
                 <th className="px-4 py-3 font-medium">Contact</th>
                 <th className="px-4 py-3 font-medium">Amount</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {roster.rows.map((r) => (
-                <RosterTableRow key={r.id} r={r} />
+                <RosterTableRow key={r.id} r={r} classId={roster.id} />
               ))}
             </tbody>
           </table>
@@ -85,17 +86,14 @@ export default async function ClassRosterPage({ params }: PageProps) {
   );
 }
 
-function RosterTableRow({ r }: { r: RosterRow }) {
+function RosterTableRow({ r, classId }: { r: RosterRow; classId: string }) {
   return (
-    <tr className="bg-white dark:bg-zinc-950">
+    <tr className="group bg-white dark:bg-zinc-950">
       <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
         {r.student_first_name} {r.student_last_name}
       </td>
       <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">
         {formatGradeRange(r.student_grade, r.student_grade)}
-      </td>
-      <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">
-        {r.parent_first_name} {r.parent_last_name}
       </td>
       <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
         <div>{r.parent_email}</div>
@@ -106,6 +104,14 @@ function RosterTableRow({ r }: { r: RosterRow }) {
       </td>
       <td className="px-4 py-3">
         <StatusBadge status={r.status} />
+      </td>
+      <td className="px-4 py-3 text-right">
+        <DeleteRegistrationButton
+          registrationId={r.id}
+          classId={classId}
+          studentName={`${r.student_first_name} ${r.student_last_name}`}
+          isPaid={r.status === "paid"}
+        />
       </td>
     </tr>
   );
