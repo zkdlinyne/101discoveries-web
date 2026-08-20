@@ -32,12 +32,8 @@ export type RosterRow = {
   student_first_name: string;
   student_last_name: string;
   student_grade: number;
-  parent_first_name: string;
-  parent_last_name: string;
   parent_email: string;
   parent_phone: string | null;
-  emergency_contact_name: string | null;
-  emergency_contact_phone: string | null;
   amount_cents: number;
   status: RegistrationStatus;
   paid_at: string | null;
@@ -219,7 +215,7 @@ export async function getClassRoster(
   const { data: rows, error: rowsErr } = await supabase
     .from("registrations")
     .select(
-      "id, created_at, student_first_name, student_last_name, student_grade, parent_first_name, parent_last_name, parent_email, parent_phone, emergency_contact_name, emergency_contact_phone, amount_cents, status, paid_at",
+      "id, created_at, student_first_name, student_last_name, student_grade, parent_email, parent_phone, amount_cents, status, paid_at",
     )
     .eq("class_id", classId)
     .order("created_at", { ascending: true });

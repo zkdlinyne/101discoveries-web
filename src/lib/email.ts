@@ -4,7 +4,6 @@ import { formatPrice } from "@/lib/format";
 
 export type ConfirmationEmailParams = {
   to: string;
-  parentFirstName: string;
   studentFirstName: string;
   studentLastName: string;
   className: string;
@@ -50,7 +49,7 @@ function buildHtml(params: ConfirmationEmailParams): string {
   const studentName = `${params.studentFirstName} ${params.studentLastName}`;
   return `
   <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #18181b;">
-    <h1 style="font-size: 20px; margin: 0 0 8px;">You're all set, ${escapeHtml(params.parentFirstName)}! 🎉</h1>
+    <h1 style="font-size: 20px; margin: 0 0 8px;">You're all set! 🎉</h1>
     <p style="font-size: 15px; line-height: 1.6; color: #3f3f46;">
       We've confirmed <strong>${escapeHtml(studentName)}</strong>'s enrollment and received your payment.
     </p>

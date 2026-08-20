@@ -36,10 +36,10 @@ export default async function RegisterPage({
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12 sm:py-16">
       <Link
-        href={`/classes/${c.slug}`}
+        href="/classes"
         className="inline-flex items-center gap-1 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
       >
-        ← Back to class details
+        ← Back to catalog
       </Link>
 
       <h1 className="mt-8 text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">

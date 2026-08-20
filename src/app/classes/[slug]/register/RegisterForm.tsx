@@ -22,18 +22,6 @@ export function RegisterForm({ slug }: { slug: string }) {
 
       <Fieldset legend="Parent / guardian">
         <Field
-          label="First name"
-          name="parent_first_name"
-          errors={state.fieldErrors?.parent_first_name}
-          required
-        />
-        <Field
-          label="Last name"
-          name="parent_last_name"
-          errors={state.fieldErrors?.parent_last_name}
-          required
-        />
-        <Field
           label="Email"
           name="parent_email"
           type="email"
@@ -87,20 +75,6 @@ export function RegisterForm({ slug }: { slug: string }) {
           </select>
           <FieldError errors={state.fieldErrors?.student_grade} />
         </div>
-      </Fieldset>
-
-      <Fieldset legend="Emergency contact (optional)">
-        <Field
-          label="Name"
-          name="emergency_contact_name"
-          errors={state.fieldErrors?.emergency_contact_name}
-        />
-        <Field
-          label="Phone"
-          name="emergency_contact_phone"
-          type="tel"
-          errors={state.fieldErrors?.emergency_contact_phone}
-        />
       </Fieldset>
 
       <SubmitButton />

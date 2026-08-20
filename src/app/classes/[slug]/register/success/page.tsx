@@ -14,7 +14,6 @@ type PageProps = {
 };
 
 type RegistrationSummary = {
-  parent_first_name: string;
   student_first_name: string;
   student_last_name: string;
   amount_cents: number;
@@ -28,7 +27,7 @@ async function getRegistration(
 ): Promise<RegistrationSummary | null> {
   const supabase = createAdminClient();
   const select =
-    "parent_first_name, student_first_name, student_last_name, amount_cents, status, classes ( title )";
+    "student_first_name, student_last_name, amount_cents, status, classes ( title )";
 
   const query = supabase.from("registrations").select(select);
   const { data } = sessionId
@@ -82,7 +81,7 @@ export default async function RegistrationSuccessPage({
 
       <p className="mt-3 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
         {reg
-          ? `Thanks, ${reg.parent_first_name}! We've saved ${reg.student_first_name}'s spot${classTitle ? ` for ${classTitle}` : ""}.`
+          ? `Thanks! We've saved ${reg.student_first_name}'s spot${classTitle ? ` for ${classTitle}` : ""}.`
           : "Thanks! We've received your registration."}
       </p>
 
@@ -115,7 +114,7 @@ export default async function RegistrationSuccessPage({
 
       <div className="mt-10">
         <Link
-          href="/"
+          href="/classes"
           className="inline-flex items-center rounded-full border border-zinc-300 px-5 py-2.5 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-900"
         >
           Back to catalog
