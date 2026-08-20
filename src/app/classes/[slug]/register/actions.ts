@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe";
 import { getClassBySlug } from "@/lib/classes";
+import { getSeatsTaken } from "@/lib/capacity";
 import { registrationSchema } from "@/lib/validation";
 
 export type RegisterState = {
@@ -45,6 +46,17 @@ export async function registerAction(
   }
   if (klass.status === "draft" || klass.status === "closed") {
     return { formError: "Registration for this class is closed." };
+  }
+
+  // Capacity gate: block if paid + in-flight (recently pending) registrations
+  // already fill the class. Checked here, before creating a Checkout session, so
+  // parents never pay for a seat that no longer exists.
+  const seatsTaken = await getSeatsTaken(klass.id);
+  if (seatsTaken >= klass.capacity) {
+    return {
+      formError:
+        "Sorry — this class just filled up. Please check back later or reach out to be added to the waitlist.",
+    };
   }
 
   const supabase = createAdminClient();

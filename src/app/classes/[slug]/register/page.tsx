@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getClassBySlug } from "@/lib/classes";
+import { getSeatInfo } from "@/lib/capacity";
 import { formatGradeRange, formatPrice, formatSchedule } from "@/lib/format";
 import { RegisterForm } from "./RegisterForm";
 
@@ -32,6 +33,9 @@ export default async function RegisterPage({
 
   const schedule = formatSchedule(c.day_of_week, c.start_time, c.end_time);
   const isClosed = c.status === "draft" || c.status === "closed";
+  const { seatsLeft, isFull } = await getSeatInfo(c.id, c.capacity);
+  // Surface a gentle nudge only when the class is genuinely close to selling out.
+  const showLowSeats = !isClosed && !isFull && seatsLeft <= 3;
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12 sm:py-16">
@@ -74,10 +78,28 @@ export default async function RegisterPage({
         )}
       </div>
 
+      {showLowSeats && (
+        <p className="mt-5 rounded-lg bg-indigo-50 px-4 py-3 text-sm font-medium text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200">
+          {seatsLeft === 1
+            ? "Only 1 spot left — register soon!"
+            : `Only ${seatsLeft} spots left — register soon!`}
+        </p>
+      )}
+
       {isClosed ? (
         <p className="mt-10 rounded-lg bg-zinc-100 px-4 py-3 text-sm font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
           Registration for this class is currently closed.
         </p>
+      ) : isFull ? (
+        <div className="mt-10 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-6 dark:border-amber-900 dark:bg-amber-950/40">
+          <p className="text-base font-semibold text-amber-900 dark:text-amber-100">
+            This class is full.
+          </p>
+          <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">
+            All {c.capacity} spots are currently taken. Check back soon in case a
+            spot opens up, or contact us to be added to the waitlist.
+          </p>
+        </div>
       ) : (
         <RegisterForm slug={c.slug} />
       )}

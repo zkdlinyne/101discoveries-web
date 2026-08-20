@@ -28,10 +28,12 @@ export async function CatalogView({ category }: { category?: Category }) {
         <h1 className="mt-3 text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
           {heading}
         </h1>
-        <p className="mt-4 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-          Chess and math enrichment classes for K–8 students in Jersey City.
-          Browse the lineup and reserve your child&apos;s spot.
-        </p>
+        {!category && (
+          <p className="mt-4 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
+            Chess and math enrichment classes for K–8 students in Jersey City.
+            Browse the lineup and reserve your child&apos;s spot.
+          </p>
+        )}
       </header>
 
       {classes.length === 0 ? (

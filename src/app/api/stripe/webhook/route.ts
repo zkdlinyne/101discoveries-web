@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendConfirmationEmail } from "@/lib/email";
+import { syncClassFullStatus } from "@/lib/capacity";
 
 // Stripe signature verification needs the raw, unparsed body and Node crypto,
 // so force the Node.js runtime and read the body as text.
@@ -43,6 +44,12 @@ export async function POST(req: NextRequest) {
         // retries never send duplicate confirmations. Email is best-effort and
         // never fails the webhook (payment is already recorded).
         if (justPaid) {
+          // Flip the class to 'full' if this payment reached capacity, so the
+          // catalog and register page reflect it right away.
+          const classId = event.data.object.metadata?.class_id;
+          if (classId) {
+            await syncClassFullStatus(classId);
+          }
           await sendConfirmationEmail({
             to: justPaid.parent_email,
             studentFirstName: justPaid.student_first_name,
