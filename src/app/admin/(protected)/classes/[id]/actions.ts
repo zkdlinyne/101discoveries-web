@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAdminUser } from "@/lib/admin-auth";
+import { syncClassFullStatus } from "@/lib/capacity";
 
 export type DeleteRegistrationState = { error?: string; success?: boolean };
 
@@ -30,7 +31,11 @@ export async function deleteRegistrationAction(
     return { error: `Could not delete enrollment: ${error.message}` };
   }
 
-  if (classId) revalidatePath(`/admin/classes/${classId}`);
+  // Removing an enrollment may free a seat, so re-open a class that was full.
+  if (classId) {
+    await syncClassFullStatus(classId);
+    revalidatePath(`/admin/classes/${classId}`);
+  }
   revalidatePath("/admin");
   return { success: true };
 }
