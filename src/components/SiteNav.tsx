@@ -31,7 +31,7 @@ export function SiteNav() {
           href="/"
           className="text-sm font-semibold text-zinc-900 dark:text-zinc-50"
         >
-          101Discoveries
+          101 Discoveries
         </Link>
         <nav className="flex items-center gap-1">
           {LINKS.map((link) => {

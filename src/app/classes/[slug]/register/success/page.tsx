@@ -5,7 +5,7 @@ import { getStripe } from "@/lib/stripe";
 import { formatPrice } from "@/lib/format";
 
 export const metadata: Metadata = {
-  title: "Registration received — 101Discoveries",
+  title: "Registration received — 101 Discoveries",
 };
 
 type PageProps = {

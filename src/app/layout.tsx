@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "101Discoveries — Class Catalog",
+  title: "101 Discoveries — Class Catalog",
   description:
     "Chess and math enrichment classes for K–8 students in Jersey City.",
 };

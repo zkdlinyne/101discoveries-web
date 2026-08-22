@@ -22,7 +22,7 @@ export default async function AdminProtectedLayout({
               href="/admin"
               className="text-sm font-semibold text-zinc-900 dark:text-zinc-50"
             >
-              101Discoveries Admin
+              101 Discoveries Admin
             </Link>
             <AdminNav />
           </div>

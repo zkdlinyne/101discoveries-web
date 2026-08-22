@@ -22,7 +22,7 @@ export async function sendConfirmationEmail(
     return false;
   }
 
-  const from = process.env.EMAIL_FROM ?? "101Discoveries <onboarding@resend.dev>";
+  const from = process.env.EMAIL_FROM ?? "101 Discoveries <onboarding@resend.dev>";
   const resend = new Resend(apiKey);
 
   const subject = `You're enrolled: ${params.className}`;
@@ -71,7 +71,7 @@ function buildHtml(params: ConfirmationEmailParams): string {
       We'll be in touch with class details before the term begins. If you have any
       questions, just reply to this email.
     </p>
-    <p style="font-size: 13px; color: #a1a1aa; margin-top: 24px;">— 101Discoveries</p>
+    <p style="font-size: 13px; color: #a1a1aa; margin-top: 24px;">— 101 Discoveries</p>
   </div>`;
 }
 

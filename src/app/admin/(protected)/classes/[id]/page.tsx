@@ -16,8 +16,8 @@ export async function generateMetadata({
   const roster = await getClassRoster(id);
   return {
     title: roster
-      ? `${roster.title} roster — 101Discoveries Admin`
-      : "Roster — 101Discoveries Admin",
+      ? `${roster.title} roster — 101 Discoveries Admin`
+      : "Roster — 101 Discoveries Admin",
   };
 }
 

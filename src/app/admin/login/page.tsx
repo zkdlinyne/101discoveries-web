@@ -4,7 +4,7 @@ import { getAdminUser } from "@/lib/admin-auth";
 import { LoginForm } from "./LoginForm";
 
 export const metadata: Metadata = {
-  title: "Admin sign in — 101Discoveries",
+  title: "Admin sign in — 101 Discoveries",
 };
 
 export default async function AdminLoginPage() {
@@ -18,7 +18,7 @@ export default async function AdminLoginPage() {
         Admin sign in
       </h1>
       <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-        101Discoveries staff only.
+        101 Discoveries staff only.
       </p>
       <LoginForm />
     </main>
