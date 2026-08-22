@@ -4,7 +4,7 @@ import { getAdminTerms } from "@/lib/admin";
 import { SemesterForm } from "./SemesterForm";
 
 export const metadata: Metadata = {
-  title: "Semesters — 101Discoveries Admin",
+  title: "Semesters — 101 Discoveries Admin",
 };
 
 export default async function SemestersPage() {

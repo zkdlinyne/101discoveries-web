@@ -6,7 +6,7 @@ import { EMPTY_CLASS_VALUES } from "../form-state";
 import { createClassAction } from "./actions";
 
 export const metadata: Metadata = {
-  title: "New class — 101Discoveries Admin",
+  title: "New class — 101 Discoveries Admin",
 };
 
 export default async function NewClassPage() {

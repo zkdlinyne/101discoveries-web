@@ -17,7 +17,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const c = await getClassBySlug(slug);
   return {
-    title: c ? `Register · ${c.title} — 101Discoveries` : "Register",
+    title: c ? `Register · ${c.title} — 101 Discoveries` : "Register",
   };
 }
 

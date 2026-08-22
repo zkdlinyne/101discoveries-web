@@ -21,8 +21,8 @@ export async function generateMetadata({
   const klass = await getClassForEdit(id);
   return {
     title: klass
-      ? `Edit ${klass.title} — 101Discoveries Admin`
-      : "Edit class — 101Discoveries Admin",
+      ? `Edit ${klass.title} — 101 Discoveries Admin`
+      : "Edit class — 101 Discoveries Admin",
   };
 }
 

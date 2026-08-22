@@ -4,7 +4,7 @@ import { getAdminClassSummaries, type ClassSummary } from "@/lib/admin";
 import { DeleteClassButton } from "./DeleteClassButton";
 
 export const metadata: Metadata = {
-  title: "Dashboard — 101Discoveries Admin",
+  title: "Dashboard — 101 Discoveries Admin",
 };
 
 export default async function AdminOverviewPage() {

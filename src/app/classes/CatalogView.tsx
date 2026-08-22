@@ -23,7 +23,7 @@ export async function CatalogView({ category }: { category?: Category }) {
     <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-16 sm:py-24">
       <header className="mx-auto max-w-2xl text-center">
         <p className="text-sm font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-          101Discoveries{term ? ` · ${term.name}` : ""}
+          101 Discoveries{term ? ` · ${term.name}` : ""}
         </p>
         <h1 className="mt-3 text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
           {heading}
